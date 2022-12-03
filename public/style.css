@@ -7,3 +7,8 @@ svg {
 .searchbox {
     border-radius: 8px;
 }
+
+.searchResult {
+    float: left;
+    margin: 10px;
+}
