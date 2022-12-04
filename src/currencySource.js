@@ -1,6 +1,7 @@
-const currencySource ={
 
-    apiCall(params) {
+//const currencySource ={
+
+    function apiCall(params) {
         return fetch(BASE_URL+params, {
             "method": "GET",              // HTTP method
             "headers": {                  // HTTP headers
@@ -12,10 +13,11 @@ const currencySource ={
         .then(response=> {if (response.ok) {return response}
         else {throw response.statusText}})
         .then(response => response.json());
-    },
-        searchCurrency(params) {return currencySource.apiCall("" + newURLSearchParams(params)).then(data=> data.results) },
-        getCurrencyDetails(id) {return currencySource.apiCall("" + id + "" );}
+    }
+        function searchCurrency(params) {return apiCall("" + new URLSearchParams(params)).then(data=> data.results) }
+        function getCurrencyValues(id) {return apiCall("" + id + "" );}
 
 
     /*    "v6.exchangerate-api.com/v6/08f84c6fc378e03c6ea34345/enriched/" + currency.id */
-};
+//};
+export {getCurrencyValues, searchCurrency};

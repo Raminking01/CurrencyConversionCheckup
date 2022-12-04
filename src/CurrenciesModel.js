@@ -1,3 +1,5 @@
+import {getCurrencyValues, searchCurrency} from "./currencySource.js";
+
 class CurrencyModel{
     constructor(){
         this.currencies = [];
@@ -18,12 +20,29 @@ class CurrencyModel{
         this.observers.forEach(cb => {try { cb() } catch (error) { console.log(error) } });
     }
     setMainCurrency(id){
-        if(this.currentCurrency === id) return;
-        this.currentCurrency = id;
-        this.currentCurrencyDetails = null;
-        this.currentCurrencyError = null;
+        if(this.mainCurrency === id) return;
+        this.mainCurrency = id;
+        this.mainCurrencyDetails = null;
+        this.mainCurrencyError = null;
         this.notifyObservers();
+
+        if(getCurrencyValues(this.currency)){
+            getCurrencyValues(id)
+            .then(result => {
+                if(this.currency === id) {
+                    this.mainCurrencyValues = result;
+                    this.notifyObservers();
+                }
+            })
+            .catch (error => {
+                if(this.currency === id){
+                    this.mainCurrencyError = error;
+                    this.notifyObservers();
+                }
+            })
+        }
     }
+
     addCurrency(currency){
         this.currencies = [...mainCurrency, currency];
         this.notifyObservers();
@@ -33,19 +52,4 @@ class CurrencyModel{
         this.notifyObservers();
     };
 
-    if(currencySource.getCurrencyValues(this.currencies)){
-        currencySource.getCurrencyValues(id)
-        .then(result -> {
-            if(this.currencies === id) {
-                this.currentCurrencyDetails = result;
-                this.notifyObservers();
-            }
-        })
-        .catch (error -> {
-            if(this.currencies === id){
-                this.currentCurrencyError = error;
-                this.notifyObservers();
-            }
-        })
-    }
 }
