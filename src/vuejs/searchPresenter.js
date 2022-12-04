@@ -1,3 +1,4 @@
+export default
 function searchPresenter(props){   // assume a model prop
 
     return <searchView searchTerm={props.model.searchTerm}

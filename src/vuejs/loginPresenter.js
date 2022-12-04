@@ -1,3 +1,4 @@
+export default
 function loginPresenter(props){   // assume a model prop
 
     return <loginView

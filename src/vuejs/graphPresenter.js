@@ -1,3 +1,4 @@
+export default
 function graphPresenter(props){   // assume a model prop
 
     return <graphView
