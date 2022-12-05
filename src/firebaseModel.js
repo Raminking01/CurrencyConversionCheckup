@@ -1,10 +1,10 @@
-//import DinnerModel from "./DinnerModel.js";
-import { getDishDetails } from "./dishSource.js";
+import CurrenciesModel from "./CurrenciesModel.js";
+import { getCurrencyDetails } from "./currencySource.js";
 import firebaseConfig from "./firebaseConfig.js";
 
 // Initialise firebase
 firebase.initializeApp(firebaseConfig);
-const REF="dinnerModel123";
+const REF="currenciesModel";
 
 function observerRecap(model) {
     function checkPayload(payload) {
@@ -15,34 +15,31 @@ function observerRecap(model) {
 
 function firebaseModelPromise() {
     function makeBigPromiseACB(firebaseData) {
-        if (!firebaseData.val() || Object.keys(firebaseData.val()).length === 0) { return new /*TODO model keyname*/(); }
-        const currencyPromiseArray= Object.keys(firebaseData.val()./*TODO (dishes equivalent)*/ || []).map(makeCurrencyPromiseCB);
-        function createModelACB(/*TODO the currency array (dishArray)*/){
-            return new /*TODO model keyname*/(firebaseData.val()./*TODO check payload (numberOfGuests) */, /*TODO the currency array (dishArray)*/);
+        if (!firebaseData.val() || Object.keys(firebaseData.val()).length === 0) { return new CurrenciesModel(); }
+        const currencyPromiseArray= Object.keys(firebaseData.val().currencies || []).map(makeCurrencyPromiseCB);
+        function createModelACB(currencyArray){
+            return new CurrenciesModel(firebaseData.val()./*TODO*/, currencyArray);
         }
-        return Promise.all(/*TODO promise all for the entire promise array (dishPromiseArray)*/).then(createModelACB);
+        return Promise.all(currencyPromiseArray).then(createModelACB);
     }
-    function makeCurrencyPromiseCB(/*TODO the currency ID (dishId)*/){
-        return getCurrencyDetails(/*TODO the currency ID (dishId)*/);
+    function makeCurrencyPromiseCB(currencyId){
+        return getCurrencyDetails(currencyId);
     }
-    return firebase.database().ref(REF /* <-- note! Whole object! */).once("value").then(makeBigPromiseACB);
+    return firebase.database().ref(REF).once("value").then(makeBigPromiseACB);
 }
 
 function updateFirebaseFromModel(model) {
     function observePayloadACB(payload) {
         if (!payload || payload<0 ) { return; }
         
-        else if (payload./*TODO check payload (numberOfGuests)*/) {
-            firebase.database().ref(REF+"/numberOfGuests").set(model.numberOfGuests)
+        else if(payload.mainCurrency){
+            firebase.database().ref(REF+"/mainCurrency").set(model.mainCurrency)
         }
-        else if(payload./*TODO check payload (dishID)*/){
-            firebase.database().ref(REF+"/currentDish").set(model.currentDish)    
+        else if (payload.addCurrency) {
+            firebase.database().ref(REF+"/currencies/"+ payload.addCurrency.id).set(payload.addCurrency.title)
         }
-        else if (payload./*TODO check payload (addDish)*/) {
-            firebase.database().ref(REF+"/dishes/"+ payload.addDish.id).set(payload.addDish.title)
-        }
-        else if (payload./*TODO check payload (removeDish)*/) {
-            firebase.database().ref(REF+"/dishes/"+ payload.removeDish.id).set(null)
+        else if (payload.removeCurrency) {
+            firebase.database().ref(REF+"/currencies/"+ payload.removeCurrency.id).set(null)
         }    
     }
     model.addObserver(observePayloadACB)
@@ -50,33 +47,28 @@ function updateFirebaseFromModel(model) {
 }
 console.log(updateFirebaseFromModel)
 
-function updateModelFromFirebase(model) { /*TODO check functions in model */
-    function guestsChangedInFirebaseACB(firebaseData){ model.setNumberOfGuests(firebaseData.val());}
-    firebase.database().ref(REF+"/numberOfGuests").on("value", guestsChangedInFirebaseACB);
-    
-    function dishChangedInFirebaseACB(firebaseData){ model.setCurrentDish(firebaseData.val());}
-    firebase.database().ref(REF+"/currentDish").on("value", dishChangedInFirebaseACB);
+function updateModelFromFirebase(model) {
+    function currencyChangedInFirebaseACB(firebaseData){ model.setMainCurrency(firebaseData.val());}
+    firebase.database().ref(REF+"/mainCurrency").on("value", currencyChangedInFirebaseACB);
 
-    function dishAddedInFirebaseACB(firebaseData){
-        function responseDishDataACB(dish) {
-            model.addToMenu(dish);
+    function currencyAddedInFirebaseACB(firebaseData){
+        function responseCurrencyDataACB(currency) {
+            model.addCurrency(currency);
         }
-        function fetchDishDataBasedOnID(dishId) {
-            function checkDishDuplicateCB(dish) {
-                return dish.id === dishId;
+        function fetchCurrencyDataBasedOnID(currencyId) {
+            function checkCurrencyDuplicateCB(currency) {
+                return currency.id === currencyId;
             }
-            return model.dishes.find(checkDishDuplicateCB);    
+            return model.currencies.find(checkCurrencyDuplicateCB);    
         }
-        if (!fetchDishDataBasedOnID(+firebaseData.key)) {
-            getDishDetails(+firebaseData.key).then(responseDishDataACB);
+        if (!fetchCurrencyDataBasedOnID(+firebaseData.key)) {
+            getCurrencyDetails(+firebaseData.key).then(responseCurrencyDataACB);
         }
     }
-    firebase.database().ref(REF+"/dishes").on("child_added", dishAddedInFirebaseACB);
+    firebase.database().ref(REF+"/currencies").on("child_added", currencyAddedInFirebaseACB);
 
-    function dishRemovedInFirebaseACB(firebaseData){ model.removeFromMenu({ id: +firebaseData.key });}
-    firebase.database().ref(REF+"/dishes").on("child_removed",  dishRemovedInFirebaseACB);
+    function currencyRemovedInFirebaseACB(firebaseData){ model.removeFromMenu({ id: +firebaseData.key });}
+    firebase.database().ref(REF+"/currencies").on("child_removed",  currencyRemovedInFirebaseACB);
     return;
 }
-
-// Remember to uncomment the following line:
 export {observerRecap, firebaseModelPromise, updateFirebaseFromModel, updateModelFromFirebase};
