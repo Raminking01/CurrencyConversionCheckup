@@ -26,39 +26,64 @@ class CurrencyModel{
     notifyObservers(){
         this.observers.forEach(cb => {try { cb() } catch (error) { console.log(error) } });
     }
+    /*Inte riktigt färdig än med setMainCurrency*/
     setMainCurrency(id){
         if(this.mainCurrency === id) return;
         this.mainCurrency = id;
-        this.mainCurrencyValues = null;
+        this.mainCurrencyResult = null;
         this.mainCurrencyError = null;
         this.notifyObservers();
 
-        if(getCurrencyValues(this.currency)){
+        if(getCurrencyValues(this.mainCurrency)){
             getCurrencyValues(id)
             .then(result => {
-                if(this.currency === id) {
-                    this.mainCurrencyValues = result;
+                if(this.mainCurrency === id) {
+                    this.mainCurrencyResult = result;
                     this.notifyObservers();
                 }
             })
             .catch (error => {
-                if(this.currency === id){
+                if(this.mainCurrency === id){
                     this.mainCurrencyError = error;
                     this.notifyObservers();
                 }
             })
         }
+        if(this.mainCurrency === id)
+            this.exchangeRates = exchangeRates.map (x => this.getCurrencyValues(x));
+
+
     }
+
 
     addCurrency(currency){
         this.currencies = [...mainCurrency, currency];
         this.notifyObservers();
     };
-    
+
     removeCurrency(currencyData){
         this.currencies = this.currencies.filter(d => d.id !=currencyData.id);
         this.notifyObservers();
     };
 
+    compareCurrencies(id, pos){
+       if(this.currencies[pos] === id)
+       return 1;
+       this.exchangeRateResult = null;
+       this.exchangeRateError = null;
+        getCurrencyValues(id) 
+        .then(result => {
+            if(this.currencies[pos] === id) {
+                this.exchangeRateResult = result;
+                this.notifyObservers();
+            }
+        })
+        .catch(error => {
+            if(this.currencies[pos] === id) {
+                this.exchangeRateError = error;
+                this.notifyObservers();
+            }
+        })
+    }
 
 }
