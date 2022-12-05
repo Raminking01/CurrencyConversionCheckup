@@ -1,9 +1,14 @@
 import {getCurrencyValues, searchCurrency} from "./currencySource.js";
 
 class CurrencyModel{
-    constructor(){
-        this.currencies = [];
+    constructor(currencyArray = [], exchangeRateArray = []){
+        this.currencies = currencyArray;
+        this.exchangeRates = exchangeRateArray;
+        this.observers = [];
         this.mainCurrency = null;
+        this.searchResultsPromiseState= {};
+        this.searchParams = {};
+        this.mainCurrencyPromiseState = {};
     }
 
     addObserver(callback){
@@ -22,7 +27,7 @@ class CurrencyModel{
     setMainCurrency(id){
         if(this.mainCurrency === id) return;
         this.mainCurrency = id;
-        this.mainCurrencyDetails = null;
+        this.mainCurrencyValues = null;
         this.mainCurrencyError = null;
         this.notifyObservers();
 
@@ -51,5 +56,6 @@ class CurrencyModel{
         this.currencies = this.currencies.filter(d => d.id !=currencyData.id);
         this.notifyObservers();
     };
+
 
 }

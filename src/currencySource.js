@@ -14,8 +14,8 @@
         else {throw response.statusText}})
         .then(response => response.json());
     }
-        function searchCurrency(params) {return apiCall("" + new URLSearchParams(params)).then(data=> data.results) }
-        function getCurrencyValues(id) {return apiCall("" + id + "" );}
+        function searchCurrency(params) {return apiCall("v6/08f84c6fc378e03c6ea34345/enriched" + new URLSearchParams(params)).then(data=> data.results) }
+        function getCurrencyValues(id) {return apiCall("currencyModel.mainCurrency" + id + "conversion_rate" );}
 
 
     /*    "v6.exchangerate-api.com/v6/08f84c6fc378e03c6ea34345/enriched/" + currency.id */
