@@ -9,6 +9,8 @@ class CurrencyModel{
         this.searchResultsPromiseState= {};
         this.searchParams = {};
         this.mainCurrencyPromiseState = {};
+        this.currenciesPromiseState = {};
+        this.exchangeRatePromiseState = {};
     }
 
     addObserver(callback){
@@ -52,6 +54,7 @@ class CurrencyModel{
         this.currencies = [...mainCurrency, currency];
         this.notifyObservers();
     };
+    
     removeCurrency(currencyData){
         this.currencies = this.currencies.filter(d => d.id !=currencyData.id);
         this.notifyObservers();
