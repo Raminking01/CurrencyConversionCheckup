@@ -1,15 +1,13 @@
-import DetailsView from "../views/detailsView";
+import GraphView from "../views/graphView.js";
 import promiseNoData from "../views/promiseNoData";
 
 export default
-function Details(props){
-    function currentDishInMenuCB(dish){ return dish.id === props.model.currentDish }
-    function onAddToMenuACB(){ 
-        props.model.addToMenu(props.model.currentDishPromiseState.data); }
-    // console.log("Dishes: "+props.model.dishes)
-    return promiseNoData(props.model.currentDishPromiseState) || 
-            <DetailsView dishData={props.model.currentDishPromiseState.data}
-                        isDishInMenu={props.model.dishes?props.model.dishes.filter(currentDishInMenuCB).length > 0?true:false:false}
-                        guests={props.model.numberOfGuests}
-                        onAddToMenu={onAddToMenuACB}/>
+function Graph(props){
+    function mainCurrencyInMenuCB(currency){ return currency.id === props.model.maincurrency }
+    function onAddCurrencyACB(){ 
+        props.model.addCurrency(props.model.maincurrencyPromiseState.data); }
+    return promiseNoData(props.model.maincurrencyPromiseState) || 
+            <GraphView  currencyData={props.model.mainCurrencyPromiseState.data}
+                        isCurrencyInMenu={props.model.currencies?props.model.currencies.filter(mainCurrencyInMenuCB).length > 0?true:false:false}
+                        onAddCurrency={onAddCurrencyACB}/>
 }
